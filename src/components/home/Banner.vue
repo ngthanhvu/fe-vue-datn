@@ -3,7 +3,6 @@
 </template>
 
 <script setup>
-console.log('Banner')
 </script>
 
 <style lang="scss" scoped></style>

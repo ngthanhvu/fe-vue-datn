@@ -35,7 +35,7 @@
             </ul>
 
             <!-- Mobile Menu Button -->
-            <button class="lg:hidden text-2xl text-gray-700">
+            <button class="lg:hidden text-2xl text-gray-700" @click="toggleMobileMenu">
                 <i class="bi bi-list"></i>
             </button>
 
@@ -51,7 +51,7 @@
                     <i class="bi bi-heart"></i>
                     <span
                         class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                        0
+                        {{ wishlistStore.wishlistCount }}
                     </span>
                 </router-link>
 
@@ -80,7 +80,7 @@
         </div>
 
         <!-- Mobile Menu -->
-        <!-- <MobileMenu :is-open="false" @close="() => { }" /> -->
+        <MobileMenu :is-open="isMobileMenuOpen" @close="toggleMobileMenu" />
     </nav>
     <CartPanel :is-open="isCartOpen" @close="toggleCart" />
 </template>
@@ -92,18 +92,20 @@ import AuthMenu from '../components/auth/AuthMenu.vue';
 import UserMenu from '../components/auth/UserMenu.vue';
 import CartPanel from '../components/common/CartPanel.vue';
 import { useAuthStore } from '../stores/auth'
+import { useWishlistStore } from '../stores/wishlist'
 import Cookies from 'js-cookie'
 import { useCart } from '../composable/useCart';
-
+import MobileMenu from './MobileMenu.vue';
 
 const { cart, fetchCart } = useCart()
+const wishlistStore = useWishlistStore()
 const isCartOpen = ref(false);
 const toggleCart = () => { isCartOpen.value = !isCartOpen.value; };
+const isMobileMenuOpen = ref(false)
 
 const authStore = useAuthStore()
 
 const totalItems = computed(() => cart.value.length)
-
 
 onMounted(async () => {
     if (!authStore.user && Cookies.get('user')) {
@@ -112,10 +114,14 @@ onMounted(async () => {
         } catch { }
     }
     await fetchCart();
+    await wishlistStore.fetchWishlist();
 })
 
 const isLoggedIn = computed(() => !!authStore.user)
 
+const toggleMobileMenu = () => {
+    isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
 
 </script>
 <style scoped>

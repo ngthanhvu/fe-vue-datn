@@ -15,8 +15,14 @@
                         <p class="text-lg">Giỏ hàng của bạn đang trống</p>
                     </div>
                     <router-link to="/san-pham"
-                        class="inline-flex items-center px-4 py-2 bg-[#81AACC] text-white rounded-md hover:bg-[#4a85b6] transition-colors">
+                        class="inline-flex items-center px-4 py-2 bg-[#81AACC] text-white rounded-md hover:bg-[#4a85b6] transition-colors mr-3"
+                        @click.native="$emit('close')">
                         <i class="bi bi-bag mr-2"></i> Mua sắm ngay
+                    </router-link>
+                    <router-link to="/gio-hang"
+                        class="inline-flex items-center px-4 py-2 border-[#81AACC] border text-[#81AACC] rounded-md hover:bg-[#81AACC] hover:text-white transition-colors"
+                        @click.native="$emit('close')">
+                        <i class="bi bi-bag mr-2"></i> Xem giỏ hàng
                     </router-link>
                 </div>
 

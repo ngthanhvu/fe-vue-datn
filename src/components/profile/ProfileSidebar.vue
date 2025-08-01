@@ -4,7 +4,7 @@
         <div class="lg:hidden p-4">
             <select :value="selected" @change="$emit('select', $event.target.value)"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-[#81AACC] focus:border-[#81AACC]">
-                <option v-for="item in items" :key="item.key" :value="item.key">
+                <option class="py-2" v-for="item in items" :key="item.key" :value="item.key">
                     {{ item.label }}
                 </option>
             </select>

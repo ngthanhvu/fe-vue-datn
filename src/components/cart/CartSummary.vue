@@ -8,21 +8,17 @@
             <span>{{ formatPrice(subtotal) }}</span>
         </div>
 
-        <!--
-        <div>
+        <!-- <div>
             <p class="text-sm font-semibold text-black uppercase mb-2">Phương thức giao hàng</p>
-            <select class="w-full text-sm border border-gray-300 rounded px-3 py-2"
-                aria-label="Shipping options"
-                v-model="selectedShipping"
-                @change="$emit('update:shipping', selectedShipping)">
+            <select class="w-full text-sm border border-gray-300 rounded px-3 py-2" aria-label="Shipping options"
+                v-model="selectedShipping" @change="$emit('update:shipping', selectedShipping)">
                 <option v-for="option in shippingOptions" :key="option.value" :value="option.value">
                     {{ option.label }} - {{ formatPrice(option.price) }}
                 </option>
             </select>
-        </div>
-        -->
+        </div> -->
 
-        <div class="flex justify-between text-sm font-semibold text-black uppercase border-t">
+        <div class="flex justify-between text-sm font-semibold text-black uppercase border-t border-gray-300">
             <span class="mt-5">Tổng cộng</span>
             <span class="mt-5">{{ formatPrice(total) }}</span>
         </div>

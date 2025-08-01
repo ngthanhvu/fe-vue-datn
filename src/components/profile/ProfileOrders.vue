@@ -318,9 +318,9 @@
                         <span class="font-medium text-gray-900">#{{ order.id }}</span>
                         <p class="text-gray-500 text-sm">{{ formatDate(order.created_at) }}</p>
                     </div>
-                    <button @click="openOrderDetail(order)"
+                    <button @click="toggleExpand(order.id)"
                         class="bg-blue-600 text-white rounded-lg px-3 py-1 text-xs hover:bg-blue-700 transition-colors">
-                        Chi tiết
+                        {{ expandedOrderId === order.id ? 'Thu gọn' : 'Chi tiết' }}
                     </button>
                 </div>
 
@@ -348,12 +348,228 @@
                         </span>
                     </div>
                 </div>
-                <!-- Thêm nút Yêu cầu hoàn hàng ở mobile -->
-                <div class="mt-2 text-right">
-                    <button v-if="canRequestReturn(order)" @click.stop="handleRequestReturn(order.id)"
-                        class="bg-orange-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-orange-600 transition-colors">
-                        Yêu cầu hoàn hàng
-                    </button>
+
+                <!-- Expanded content for mobile -->
+                <div v-if="expandedOrderId === order.id" class="border-t border-gray-200 pt-4 space-y-4">
+                    <!-- Timeline trạng thái đơn hàng -->
+                    <div class="border-b border-gray-300 pb-4">
+                        <h4 class="font-semibold mb-3 text-gray-900 text-sm">Trạng thái đơn hàng</h4>
+                        <div class="flex items-center justify-between">
+                            <!-- Đặt hàng -->
+                            <div class="flex flex-col items-center relative">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <span class="text-xs mt-1 text-gray-700">Đặt hàng</span>
+                                <span class="text-xs text-gray-500">{{ formatDate(order.created_at) }}</span>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-gray-200 mx-2"></div>
+                            <!-- Xác nhận -->
+                            <div class="flex flex-col items-center relative">
+                                <div :class="[
+                                    'w-8 h-8 rounded-full flex items-center justify-center text-white',
+                                    order.status === 'pending' ? 'bg-yellow-500' : 'bg-green-500'
+                                ]">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                <span class="text-xs mt-1 text-gray-700">Xác nhận</span>
+                                <span class="text-xs text-gray-500">
+                                    {{ order.status === 'pending' ? 'Đang chờ' :
+                                        formatDate(order.updated_at) }}
+                                </span>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-gray-200 mx-2"></div>
+                            <!-- Giao hàng -->
+                            <div class="flex flex-col items-center relative">
+                                <div :class="[
+                                    'w-8 h-8 rounded-full flex items-center justify-center text-white',
+                                    ['shipping', 'completed'].includes(order.status) ? 'bg-green-500' : 'bg-gray-300'
+                                ]">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                    </svg>
+                                </div>
+                                <span class="text-xs mt-1 text-gray-700">Giao hàng</span>
+                                <span class="text-xs text-gray-500">
+                                    {{
+                                        ['shipping', 'completed'].includes(order.status) ? 'Đang giao' :
+                                            'Chờ xử lý'
+                                    }}
+                                </span>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-gray-200 mx-2"></div>
+                            <!-- Hoàn thành -->
+                            <div class="flex flex-col items-center relative">
+                                <div
+                                    :class="['w-8 h-8 rounded-full flex items-center justify-center text-white', order.status === 'completed' ? 'bg-green-500' : 'bg-gray-300']">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <span class="text-xs mt-1 text-gray-700">Hoàn thành</span>
+                                <span class="text-xs text-gray-500">
+                                    {{ order.status === 'completed' ? 'Đã nhận hàng' : 'Chờ xử lý' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sản phẩm -->
+                    <div>
+                        <h4 class="font-semibold mb-2 text-gray-900 text-sm">Sản phẩm</h4>
+                        <div class="space-y-2">
+                            <div v-for="item in order.order_details" :key="item.id"
+                                class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                                <img :src="item.variant?.product?.main_image?.image_path"
+                                    class="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+                                    :alt="item.variant?.product?.name" />
+                                <div class="flex-1 min-w-0">
+                                    <h5 class="font-medium text-gray-900 text-sm">{{
+                                        item.variant?.product?.name }}</h5>
+                                    <p class="text-gray-600 text-xs">Size: {{ item.variant?.size }}</p>
+                                    <p class="text-gray-600 text-xs">Số lượng: {{ item.quantity }}</p>
+                                </div>
+                                <div class="text-right flex-shrink-0">
+                                    <p class="font-medium text-gray-900 text-sm">{{ formatPrice(item.price)
+                                    }}đ</p>
+                                    <p class="text-gray-600 text-xs">Tổng: {{ formatPrice(item.total_price)
+                                    }}đ</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin giao hàng và thanh toán -->
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <h4 class="font-semibold mb-2 text-gray-900 text-sm">Thông tin giao hàng</h4>
+                            <div class="space-y-1 text-xs">
+                                <p><span class="font-medium text-gray-700">Người nhận:</span> {{
+                                    order.address?.full_name }}</p>
+                                <p><span class="font-medium text-gray-700">Điện thoại:</span> {{
+                                    order.address?.phone }}</p>
+                                <p><span class="font-medium text-gray-700">Địa chỉ:</span> {{
+                                    getFullAddress(order.address) }}</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <h4 class="font-semibold mb-2 text-gray-900 text-sm">Thông tin thanh toán</h4>
+                            <div class="space-y-1 text-xs">
+                                <p><span class="font-medium text-gray-700">Phương thức:</span> {{
+                                    getPaymentMethodLabel(order.payment_method) }}</p>
+                                <p><span class="font-medium text-gray-700">Trạng thái:</span> {{
+                                    getPaymentStatusLabel(order.payment_status) }}</p>
+                                <p><span class="font-medium text-gray-700">Mã tra cứu:</span> {{
+                                    order.tracking_code || 'Chưa có mã' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tổng tiền -->
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between"><span class="text-gray-600">Tổng tiền
+                                    hàng</span><span class="font-medium">{{
+                                        formatPrice(order.total_price) }}đ</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">Phí vận
+                                    chuyển</span><span class="font-medium">{{
+                                        formatPrice(order.shipping_fee) }}đ</span></div>
+                            <div class="flex justify-between"><span class="text-gray-600">Giảm
+                                    giá</span><span class="font-medium text-red-600">-{{
+                                        formatPrice(order.discount_price) }}đ</span></div>
+                            <div class="flex justify-between font-bold text-base border-t border-gray-300 pt-2">
+                                <span class="text-gray-900">Thành tiền</span><span class="text-gray-900">{{
+                                    formatPrice(order.final_price) }}đ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Return status display -->
+                    <div v-if="order.return_status" class="space-y-2">
+                        <div v-if="order.return_status === 'requested'" class="flex items-start">
+                            <svg class="w-5 h-5 text-yellow-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 15l-6-6 6-6M3 9h9a6 6 0 016 6v3" />
+                            </svg>
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 w-full ml-2 relative">
+                                <div class="text-gray-500 text-xs absolute top-1 right-1">
+                                    {{ order.return_requested_at ?
+                                        formatDateNoPrefix(order.return_requested_at) :
+                                        formatDateNoPrefix(order.updated_at) }}
+                                </div>
+                                <div class="text-yellow-700 font-medium text-left text-sm">
+                                    Bạn đã gửi yêu cầu hoàn hàng. Vui lòng chờ xác nhận.
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if="order.return_status === 'approved'" class="flex items-start">
+                            <svg class="w-5 h-5 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 15l-6-6 6-6M3 9h9a6 6 0 016 6v3" />
+                            </svg>
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-3 w-full ml-2 relative">
+                                <div class="text-gray-500 text-xs absolute top-1 right-1">
+                                    {{ order.return_requested_at ?
+                                        formatDateNoPrefix(order.return_requested_at) :
+                                        formatDateNoPrefix(order.updated_at) }}
+                                </div>
+                                <div class="text-green-700 font-bold text-left text-sm">
+                                    Yêu cầu hoàn hàng đã được xác nhận.
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if="order.return_status === 'rejected'" class="flex items-start">
+                            <svg class="w-5 h-5 text-red-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 15l-6-6 6-6M3 9h9a6 6 0 016 6v3" />
+                            </svg>
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-3 w-full ml-2 relative">
+                                <div class="text-gray-500 text-xs absolute top-1 right-1">
+                                    {{ order.return_requested_at ?
+                                        formatDateNoPrefix(order.return_requested_at) :
+                                        formatDateNoPrefix(order.updated_at) }}
+                                </div>
+                                <div class="text-red-700 font-bold text-left text-sm">
+                                    Yêu cầu hoàn hàng đã bị từ chối
+                                </div>
+                                <div v-if="order.reject_reason"
+                                    class="text-red-600 text-xs break-words whitespace-pre-line text-left mt-1">
+                                    <span class="font-semibold">Lý do từ chối:</span> {{
+                                        order.reject_reason }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex gap-2 justify-end">
+                        <button v-if="canCancelOrder(order)"
+                            @click.stop="showCancelReasonModal = true; selectedOrder = order"
+                            class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors">
+                            Huỷ đơn hàng
+                        </button>
+                        <button v-if="canRequestReturn(order)" @click.stop="handleRequestReturn(order.id)"
+                            class="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 transition-colors">
+                            Yêu cầu hoàn hàng
+                        </button>
+                        <button v-if="order && (order.status === 'completed' || order.status === 'cancelled')"
+                            @click.stop="handleReorder(order.id)"
+                            class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                            Mua lại
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

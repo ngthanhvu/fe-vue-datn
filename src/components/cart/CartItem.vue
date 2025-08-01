@@ -22,7 +22,7 @@
             <div class="flex flex-col items-center gap-2">
                 <div class="flex justify-center items-center">
                     <button aria-label="Decrease quantity"
-                        class="text-gray-500 text-xl select-none hover:text-black transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                        class="text-gray-500 text-xl select-none hover:text-black transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer"
                         type="button" @click="handleDecrease" :disabled="quantity <= 1">
                         <i class="fas fa-minus"></i>
                     </button>
@@ -30,7 +30,7 @@
                         class="w-16 h-8 text-center border border-gray-300 mx-2 text-sm focus:outline-none focus:border-blue-500"
                         @input="handleQuantityInput" />
                     <button aria-label="Increase quantity"
-                        class="text-gray-500 text-xl select-none hover:text-black transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                        class="text-gray-500 text-xl select-none hover:text-black transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer"
                         type="button" @click="handleIncrease"
                         :disabled="quantity >= (product?.variant?.quantity || 999)">
                         <i class="fas fa-plus"></i>
@@ -46,7 +46,8 @@
             {{ formatPrice(product.price * quantity) }}
         </td>
         <td class="py-4 text-center w-[10%]">
-            <button class="text-sm text-gray-400 hover:text-red-500 transition-colors" @click="$emit('remove')">
+            <button class="text-sm text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                @click="$emit('remove')">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </td>

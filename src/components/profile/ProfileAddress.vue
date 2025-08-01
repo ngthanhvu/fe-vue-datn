@@ -105,7 +105,8 @@
 
         <!-- Mobile Cards -->
         <div class="md:hidden space-y-4">
-            <div v-for="address in addresses" :key="address.id" class="bg-white border rounded-lg p-4 space-y-2">
+            <div v-for="address in addresses" :key="address.id"
+                class="bg-white border border-gray-300 rounded-lg p-4 space-y-2">
                 <div class="flex justify-between items-center">
                     <p class="font-medium text-sm">{{ address.full_name }}</p>
                     <div class="flex gap-2">

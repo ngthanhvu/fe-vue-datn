@@ -4,7 +4,23 @@
             <section class="flex-1 p-4 sm:p-6 md:p-10">
                 <CartHeader :item-count="cartItems.length" />
 
-                <div v-if="cartItems.length === 0" class="text-center py-8">
+                <!-- Skeleton Loading -->
+                <div v-if="loading" class="space-y-4 animate-pulse">
+                    <div v-for="i in 3" :key="i"
+                        class="flex items-center justify-between border-b border-gray-300 pb-4">
+                        <div class="flex items-center gap-4 w-full">
+                            <div class="w-20 h-20 bg-gray-200 rounded"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                                <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                                <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty Cart -->
+                <div v-else-if="cartItems.length === 0" class="text-center py-8">
                     <div class="text-gray-500 mb-4">
                         <i class="fas fa-shopping-cart text-4xl mb-3"></i>
                         <p class="text-lg">Giỏ hàng của bạn đang trống</p>
@@ -15,6 +31,7 @@
                     </a>
                 </div>
 
+                <!-- Cart Items -->
                 <div v-else>
                     <div class="overflow-x-auto w-full">
                         <table class="w-full min-w-[800px]">
@@ -56,6 +73,7 @@ import { useCart } from '../../composable/useCart'
 const { cart, fetchCart, updateQuantity, removeFromCart } = useCart()
 
 const cartItems = computed(() => Array.isArray(cart.value) ? cart.value : [])
+const loading = ref(true)
 
 const selectedShipping = ref({
     value: 'standard',
@@ -110,11 +128,19 @@ const handleClearCart = async () => {
     }
 }
 
-onMounted(() => {
-    if (!cartItems.value.length) {
-        fetchCart()
+// onMounted(() => {
+//     if (!cartItems.value.length) {
+//         fetchCart()
+//     }
+// })
+
+onMounted(async () => {
+    try {
+        await fetchCart();
+    } finally {
+        loading.value = false;
     }
-})
+});
 </script>
 
 <style scoped>

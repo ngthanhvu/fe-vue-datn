@@ -65,9 +65,10 @@
                             +{{ uniqueVariantCount - maxDisplayVariants }}
                         </span>
                     </div>
-                    <button class="text-gray-400 hover:text-red-500 transition" title="Yêu thích">
+                    <!-- <button class="text-gray-400 hover:text-red-500 transition" title="Yêu thích">
                         <i class="fa-regular fa-heart"></i>
-                    </button>
+                    </button> -->
+                    <FavoriteButton :product-slug="product.slug" @click.prevent />
                 </div>
             </div>
         </div>
@@ -76,7 +77,7 @@
 
 <script setup>
 import { computed } from 'vue'
-
+import FavoriteButton from '../common/FavoriteButton.vue'
 const props = defineProps({
     product: Object
 })
