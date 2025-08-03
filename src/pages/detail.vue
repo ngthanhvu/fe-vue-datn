@@ -283,6 +283,23 @@ onMounted(async () => {
         mainImage.value = data.images?.[0]?.image_path || ''
         displayPrice.value = data.price
 
+        // LẤY GIÁ TRỊ FLASH SALE TỪ QUERY
+        if (route.query.flashsale) {
+            flashSaleName.value = route.query.flashsale
+        }
+        if (route.query.flash_price) {
+            flashSalePrice.value = Number(route.query.flash_price)
+        }
+        if (route.query.end_time) {
+            flashSaleEndTime.value = route.query.end_time
+        }
+        if (route.query.sold) {
+            flashSaleSold.value = Number(route.query.sold)
+        }
+        if (route.query.quantity) {
+            flashSaleQuantity.value = Number(route.query.quantity)
+        }
+
         const inventories = await getInventories({ product_id: data.id })
         productInventory.value = inventories
 

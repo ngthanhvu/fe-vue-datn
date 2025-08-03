@@ -5,23 +5,23 @@
                 <!-- Cột 1: Thông tin liên hệ -->
                 <div>
                     <div class="mb-4 font-bold text-2xl flex items-center gap-2">
-                        <img src="https://placehold.co/150x50?text=LOGO" alt="Logo" class="w-32" />
+                        <img :src="settings.logo || 'https://placehold.co/150x50?text=LOGO'" alt="Logo" class="w-32" />
                     </div>
                     <div class="flex items-start gap-2 mb-2">
-                        <span class="text-2xl font-semibold">Tên cửa hàng</span>
+                        <span class="text-2xl font-semibold">{{ settings.storeName || "Tên cửa hàng" }}</span>
                     </div>
 
                     <div class="flex items-start gap-2 mb-2">
                         <i class="bi bi-geo-alt-fill"></i>
-                        <span>Địa chỉ: Chưa cập nhật</span>
+                        <span>Địa chỉ: {{ settings.address || "chưa cập nhật" }}</span>
                     </div>
                     <div class="flex items-start gap-2 mb-2">
                         <i class="bi bi-telephone-fill"></i>
-                        <span>Số điện thoại: Chưa có</span>
+                        <span>Số điện thoại: {{ settings.phone || "chưa cập nhật" }}</span>
                     </div>
                     <div class="flex items-start gap-2 mb-2">
                         <i class="bi bi-envelope-fill"></i>
-                        <span>Email: Chưa có</span>
+                        <span>Email: {{ settings.email || "chưa cập nhật" }}</span>
                     </div>
                     <div class="mt-4 text-xs text-gray-200">
                         © Bản quyền thuộc về <span class="font-bold text-white">DEVGANG</span> | Cung cấp bởi
@@ -74,3 +74,14 @@
         </div>
     </footer>
 </template>
+
+<script setup>
+import { onMounted } from 'vue';
+import { useSettings } from '../composable/useSettingsApi';
+
+const { settings, fetchSettings } = useSettings()
+
+onMounted(() => {
+    fetchSettings()
+})
+</script>

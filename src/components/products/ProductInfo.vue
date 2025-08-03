@@ -39,12 +39,20 @@
             </div>
             <div class="flex items-center gap-3 mb-3">
                 <span class="text-[22px] font-bold">
-                    {{ selectedVariant ? formatPrice(selectedVariantSalePrice) : formatPrice(displayPrice) }}
+                    {{
+                        selectedVariant
+                            ? formatPrice(selectedVariantSalePrice)
+                            : (flashSalePrice ? formatPrice(flashSalePrice) : formatPrice(displayPrice))
+                    }}
                 </span>
-                <span v-if="selectedVariant" class="line-through text-gray-400 text-[15px]">
+                <span v-if="selectedVariant && flashSalePercent > 0" class="line-through text-gray-400 text-[15px]">
                     {{ formatPrice(selectedVariant.price) }}
                 </span>
-                <span v-if="selectedVariant && flashSalePercent > 0" class="text-[#d43f3f] text-[15px] font-semibold">
+                <span v-else-if="!selectedVariant && flashSalePrice" class="line-through text-gray-400 text-[15px]">
+                    {{ formatPrice(displayPrice) }}
+                </span>
+                <span v-if="(selectedVariant && flashSalePercent > 0) || (!selectedVariant && flashSalePercent > 0)"
+                    class="text-[#d43f3f] text-[15px] font-semibold">
                     -{{ flashSalePercent }}%
                 </span>
             </div>

@@ -29,7 +29,7 @@
 
         <div class="mt-6 text-right">
             <button @click="handleSaveAll"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded">
+                class="bg-[#3BB77E] hover:bg-green-700 text-white font-medium px-6 py-2 rounded cursor-pointer">
                 Lưu thay đổi
             </button>
         </div>
@@ -42,6 +42,7 @@
 import { ref, onMounted, computed } from 'vue'
 import SettingCard from './SettingsCard.vue'
 import useSettings from '../../../composable/useSettingsApi'
+import { push } from 'notivue'
 
 const { settings, fetchSettings, updateSettings } = useSettings()
 
@@ -97,9 +98,9 @@ const handleSaveAll = async () => {
             }
         }
         await updateSettings(normalized)
-        alert(' Đã lưu cài đặt thành công.')
+        push.success(' Đã lưu cài đặt thành công.')
     } catch (err) {
-        alert(' Đã lưu cài đặt thành công')
+        console.log(err)
     }
 }
 
