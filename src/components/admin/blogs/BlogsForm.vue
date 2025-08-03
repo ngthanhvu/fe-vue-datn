@@ -73,12 +73,7 @@
             <!-- Cột phải: CKEditor -->
             <div class="w-full lg:w-1/2">
                 <label class="font-medium text-gray-700 mb-2">Nội dung <span class="text-red-500">*</span></label>
-                <ClientOnly>
-                    <CKEditor v-model="formData.content" :key="route.params.id || 'new'" />
-                    <template #fallback>
-                        <div class="p-4 text-center text-gray-500">Đang tải editor...</div>
-                    </template>
-                </ClientOnly>
+                <CKEditor v-model="formData.content" :key="route.params.id || 'new'" />
                 <div class="text-right text-xs text-gray-500 mt-1">{{ getTextLength(formData.content) }} ký
                     tự</div>
                 <span v-if="errors.content" class="text-red-500 text-sm mt-1">{{ errors.content }}</span>
@@ -88,8 +83,8 @@
             <button type="button" @click="handleCancel" class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50">
                 Hủy
             </button>
-            <button type="submit" :disabled="loading"
-                class="bg-primary text-white rounded px-4 py-2 hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed">
+            <button type="button" @click="handleSubmit" :disabled="loading"
+                class="bg-primary text-white rounded px-4 py-2 cursor-pointer hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed">
                 {{ loading ? 'Đang xử lý...' : isEditMode ? 'Cập nhật' : 'Thêm mới' }}
             </button>
         </div>
@@ -140,12 +135,13 @@ watch(() => blog.value, (val) => {
 
 const getTextLength = (htmlContent) => {
     if (!htmlContent) return 0
-    if (process.client) {
+    try {
         const tempDiv = document.createElement('div')
         tempDiv.innerHTML = htmlContent
         return tempDiv.textContent?.length || 0
+    } catch (e) {
+        return 0
     }
-    return 0
 }
 
 const handleImageUpload = (event) => {
@@ -203,9 +199,18 @@ const buildFormData = () => {
 }
 
 const handleSubmit = async () => {
-    if (!validateForm()) return
+    console.log('Submit clicked')
+    console.log('Form data:', formData.value)
+
+    if (!validateForm()) {
+        console.log('Validation failed:', errors.value)
+        return
+    }
+
+    console.log('Validation passed, submitting...')
     try {
         if (isEditMode.value) {
+            console.log('Edit mode')
             if (formData.value.imageFile instanceof File) {
                 await updateBlog(route.params.id, buildFormData())
             } else {
@@ -217,11 +222,13 @@ const handleSubmit = async () => {
                 })
             }
         } else {
+            console.log('Create mode')
             await createBlog(buildFormData())
             alert('Thêm bài viết thành công!')
         }
         router.push('/admin/blogs')
     } catch (err) {
+        console.error('Submit error:', err)
         if (err.errors) errors.value = err.errors
         else console.error('Error:', err)
     }

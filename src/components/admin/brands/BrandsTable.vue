@@ -60,7 +60,7 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-2">
-                                    <router-link :to="`/admin/brands/${brand.id}/edit`"
+                                    <router-link :to="`/admin/brands/edit/${brand.id}`"
                                         class="inline-flex items-center p-1.5 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors duration-150"
                                         title="Chỉnh sửa thương hiệu">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

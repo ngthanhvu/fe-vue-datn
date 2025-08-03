@@ -9,6 +9,12 @@
                 <CouponList />
             </div>
         </div>
+        <div class="mt-3" v-if="showFlashSale">
+            <div class="bg-[#e6f0fa] p-8 rounded-[5px] shadow-md relative overflow-hidden">
+                <Snowfall />
+                <FlashSale @has-flash-sale="handleFlashSaleStatus" />
+            </div>
+        </div>
         <div class="mt-3">
             <NewProducts />
         </div>
@@ -25,6 +31,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useHead } from '@vueuse/head';
 import Banner from '../components/home/Banner.vue';
 import SwiperSlider from '../components/home/SwiperSlider.vue';
@@ -36,6 +43,8 @@ import CategoriesProducts from '../components/home/CategoriesProducts.vue';
 import HotBrands from '../components/home/HotBrands.vue';
 import ReviewLatest from '../components/home/ReviewLatest.vue';
 import FeaturedBlogs from '../components/home/FeaturedBlogs.vue';
+import FlashSale from '../components/home/FlashSale.vue';
+import Snowfall from '../components/common/Snowfall.vue';
 useHead({
     title: "Trang chủ | DEVGANG",
     meta: [
@@ -45,6 +54,11 @@ useHead({
         }
     ]
 })
+
+const showFlashSale = ref(true);
+const handleFlashSaleStatus = (status) => {
+    showFlashSale.value = status
+}
 </script>
 
 <style lang="scss" scoped></style>

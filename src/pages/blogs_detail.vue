@@ -226,7 +226,7 @@ const getSocialIcon = (platform) => {
 }
 </script>
 
-<style scoped>
+<style>
 .blog-image {
     max-width: 100%;
     max-height: 350px;
@@ -327,23 +327,100 @@ aside {
     margin: 1em 0;
 }
 
-/* Bảng */
-.editor-content table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-bottom: 1em;
+/* Bảng - CSS mạnh hơn để đảm bảo hiển thị */
+.editor-content table,
+.editor-content figure.table table,
+.editor-content table *,
+.editor-content figure.table table * {
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+}
+
+.editor-content table,
+.editor-content figure.table table {
+    width: 100% !important;
+    margin-bottom: 1em !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+    background-color: #ffffff !important;
 }
 
 .editor-content th,
-.editor-content td {
-    border: 1px solid #ccc;
-    padding: 0.75em;
-    text-align: left;
+.editor-content td,
+.editor-content figure.table th,
+.editor-content figure.table td {
+    border: 1px solid #e5e7eb !important;
+    padding: 0.75em !important;
+    text-align: left !important;
+    vertical-align: top !important;
+    min-width: 100px !important;
 }
 
-.editor-content th {
-    background-color: #f9f9f9;
-    font-weight: bold;
+.editor-content th,
+.editor-content figure.table th {
+    background-color: #f9fafb !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    border-bottom: 2px solid #e5e7eb !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+}
+
+.editor-content td,
+.editor-content figure.table td {
+    background-color: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.editor-content tr:nth-child(even) td,
+.editor-content figure.table tr:nth-child(even) td {
+    background-color: #f9fafb !important;
+}
+
+.editor-content tr:hover td,
+.editor-content figure.table tr:hover td {
+    background-color: #f3f4f6 !important;
+}
+
+/* Responsive table */
+.editor-content table,
+.editor-content figure.table table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
+}
+
+@media (min-width: 768px) {
+
+    .editor-content table,
+    .editor-content figure.table table {
+        display: table !important;
+        white-space: normal !important;
+    }
+}
+
+/* Đảm bảo tất cả table elements đều có border */
+.editor-content table,
+.editor-content table tr,
+.editor-content table th,
+.editor-content table td,
+.editor-content figure.table table,
+.editor-content figure.table table tr,
+.editor-content figure.table table th,
+.editor-content figure.table table td {
+    border: 1px solid #e5e7eb !important;
+}
+
+/* Đảm bảo figure.table không có margin/padding không mong muốn */
+.editor-content figure.table {
+    margin: 1em 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
 }
 
 /* Hình ảnh */

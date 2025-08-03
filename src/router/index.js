@@ -21,10 +21,13 @@ import FavoriteProductPage from '../pages/favorite.vue';
 import Admin from '../pages/admin/index.vue';
 import ProductsPageAdmin from '../pages/admin/products/index.vue';
 import ProductsCreate from '../pages/admin/products/create.vue';
+import ProductsEdit from '../pages/admin/products/edit.vue';
 import CategoriesPageAdmin from '../pages/admin/categories/index.vue';
 import CategoriesCreate from '../pages/admin/categories/create.vue';
+import CategoriesEdit from '../pages/admin/categories/edit.vue';
 import BrandsPageAdmin from '../pages/admin/brands/index.vue';
 import BrandsCreate from '../pages/admin/brands/create.vue';
+import BrandsEdit from '../pages/admin/brands/edit.vue';
 import OrdersPageAdmin from '../pages/admin/orders/index.vue';
 import OrderDetailPageAdmin from '../pages/admin/orders/detail.vue';
 import CouponsPageAdmin from '../pages/admin/coupons/index.vue';
@@ -141,6 +144,10 @@ const routes = [
                 component: ProductsCreate
             },
             {
+                path: '/admin/products/edit/:id',
+                component: ProductsEdit
+            },
+            {
                 path: '/admin/categories',
                 component: CategoriesPageAdmin
             },
@@ -149,12 +156,20 @@ const routes = [
                 component: CategoriesCreate
             },
             {
+                path: '/admin/categories/edit/:id',
+                component: CategoriesEdit
+            },
+            {
                 path: '/admin/brands',
                 component: BrandsPageAdmin
             },
             {
                 path: '/admin/brands/create',
                 component: BrandsCreate
+            },
+            {
+                path: '/admin/brands/edit/:id',
+                component: BrandsEdit
             },
             {
                 path: '/admin/orders',

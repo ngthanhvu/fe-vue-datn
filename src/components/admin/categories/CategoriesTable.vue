@@ -60,7 +60,7 @@
                         </td>
                         <td class="px-3 py-2 text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <router-link :to="`/admin/categories/${category.id}/edit`"
+                                <router-link :to="`/admin/categories/edit/${category.id}`"
                                     class="inline-flex items-center p-1.5 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors duration-150"
                                     title="Chỉnh sửa danh mục">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

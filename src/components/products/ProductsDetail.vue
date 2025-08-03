@@ -88,7 +88,6 @@ import ProductDescription from './ProductDescription.vue'
 import ProductReviews from './ProductsReview.vue'
 import PreservationInformation from './ProductPreservation.vue';
 import ShippingReturn from './ProductShippingReturn.vue'
-
 import RelatedProducts from './RelatedProducts.vue'
 import { toRef } from 'vue'
 const props = defineProps({

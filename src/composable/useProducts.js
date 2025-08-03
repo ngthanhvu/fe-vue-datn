@@ -132,7 +132,10 @@ export const useProducts = () => {
                 return cached
             }
 
-            const response = await API.get(`/api/products/${id}`)
+            const token = getTokenFromCookie()
+            const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
+            const response = await API.get(`/api/products/${id}`, { headers })
             setCachedData(cacheKey, response.data)
             return response.data
         } catch (error) {
@@ -160,12 +163,16 @@ export const useProducts = () => {
 
     const createProduct = async (product) => {
         try {
-            const response = await API.post('/api/products', product, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Accept': 'application/json'
-                }
-            })
+            const token = getTokenFromCookie()
+            const headers = {
+                'Content-Type': 'multipart/form-data',
+                'Accept': 'application/json'
+            }
+            if (token) {
+                headers.Authorization = `Bearer ${token}`
+            }
+
+            const response = await API.post('/api/products', product, { headers })
             return response.data
         } catch (error) {
             console.error('Error creating product:', error)
@@ -175,12 +182,16 @@ export const useProducts = () => {
 
     const updateProduct = async (id, product) => {
         try {
-            const response = await API.post(`/api/products/${id}?_method=PUT`, product, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Accept': 'application/json'
-                }
-            })
+            const token = getTokenFromCookie()
+            const headers = {
+                'Content-Type': 'multipart/form-data',
+                'Accept': 'application/json'
+            }
+            if (token) {
+                headers.Authorization = `Bearer ${token}`
+            }
+
+            const response = await API.post(`/api/products/${id}?_method=PUT`, product, { headers })
             return response.data
         } catch (error) {
             console.error('Error updating product:', error)

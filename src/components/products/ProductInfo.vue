@@ -125,14 +125,12 @@
             <h3 class="font-medium mb-1 text-[17px]">Số lượng</h3>
             <div class="flex items-center gap-4">
                 <div class="flex items-center border border-gray-300 rounded-md">
-                    <button @click="quantity > 1 && $emit('update:quantity', quantity - 1)"
+                    <button @click="$emit('update:quantity', Math.max(1, quantity - 1))"
                         class="px-3 py-2 hover:bg-gray-100">-</button>
                     <input type="number" :value="quantity"
-                        @input="$emit('update:quantity', parseInt($event.target.value) || 1)" min="1"
-                        :max="flashSalePrice ? flashSaleQuantity : selectedVariantStock"
+                        @input="$emit('update:quantity', Math.max(1, parseInt($event.target.value) || 1))" min="1"
                         class="w-20 text-center border-x border-gray-300 py-3 text-[16px]" />
-                    <button
-                        @click="quantity < (flashSalePrice ? flashSaleQuantity : selectedVariantStock) && $emit('update:quantity', quantity + 1)"
+                    <button @click="$emit('update:quantity', quantity + 1)"
                         class="px-3 py-2 hover:bg-gray-100">+</button>
                 </div>
                 <span class="text-sm text-gray-500">
@@ -346,6 +344,12 @@ const selectedVariantInventory = computed(() => {
     )
     return inv ? inv.quantity : 0
 })
+
+const maxQuantity = computed(() => {
+    const max = props.flashSalePrice ? props.flashSaleQuantity : props.selectedVariantStock
+    return max > 0 ? max : Infinity
+})
+const canIncrease = computed(() => props.quantity < maxQuantity.value)
 
 const addToCart = async () => {
     try {

@@ -4,11 +4,11 @@
         <div class="header-section px-6 mt-3">
             <div class="flex justify-between items-start">
                 <div class="flex items-center space-x-4">
-                    <button @click="goBack" class="text-gray-600 hover:text-gray-800">
+                    <button @click="goBack" class="text-gray-600 hover:text-gray-800 cursor-pointer">
                         <i class="fas fa-arrow-left text-xl"></i>
                     </button>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">Order #{{ orderId }}</h1>
+                        <h1 class="text-2xl font-bold text-gray-900">Đơn hàng #{{ orderId }}</h1>
                         <div class="flex items-center space-x-2 mt-1">
                             <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
                                 {{ orderStatusText }}
@@ -18,20 +18,39 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <div class="relative">
+                    <!-- Nhóm cập nhật trạng thái -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select v-model="selectedStatus" class="border border-gray-300 rounded px-4 py-2 text-sm">
+                            <option v-for="opt in statusOptions" :value="opt.value" :key="opt.value">{{ opt.label }}
+                            </option>
+                        </select>
+                        <select v-model="selectedPaymentStatus"
+                            class="border border-gray-300 rounded px-4 py-2 text-sm">
+                            <option v-for="opt in paymentStatusOptions" :value="opt.value" :key="opt.value">{{
+                                opt.label }}</option>
+                        </select>
                         <button
-                            class="flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200">
-                            <span>{{ orderStatusText }}</span>
-                            <i class="fas fa-chevron-down ml-2"></i>
-                        </button>
+                            @click="handleUpdateStatus({ status: selectedStatus, payment_status: selectedPaymentStatus })"
+                            class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700">Gửi</button>
+                    </div>
+                    <!-- Nhóm duyệt/từ chối hoàn hàng -->
+                    <div v-if="currentOrder?.return_status === 'requested'"
+                        class="flex flex-col items-end gap-2 mt-2 md:mt-0">
+                        <span class="text-xs text-gray-500 font-medium mb-1">Xử lý yêu cầu hoàn hàng:</span>
+                        <div class="flex gap-2">
+                            <button @click="handleApproveReturn"
+                                class="bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700">
+                                Duyệt
+                            </button>
+                            <button @click="openRejectModal"
+                                class="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700">
+                                Từ chối
+                            </button>
+                        </div>
                     </div>
                     <button class="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
                         <i class="fas fa-print mr-2"></i>
-                        Print
-                    </button>
-                    <button class="flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
-                        <i class="fas fa-edit mr-2"></i>
-                        Edit
+                        In
                     </button>
                 </div>
             </div>
@@ -56,10 +75,8 @@
                     <!-- Details Card -->
                     <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900">Details</h3>
-                            <button class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-edit"></i>
-                            </button>
+                            <h3 class="text-lg font-semibold text-gray-900">Chi tiết</h3>
+
                         </div>
 
                         <!-- Order Items -->
@@ -81,91 +98,132 @@
                         <!-- Price Summary -->
                         <div class="border-t border-gray-200 mt-4 pt-4 space-y-2">
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Subtotal</span>
-                                <span>{{ formatPrice(currentOrder.total_price) }}</span>
+                                <span class="text-gray-600">Tạm tính</span>
+                                <span>{{ formatPrice(currentOrder?.total_price) }}</span>
                             </div>
                             <div class="flex justify-between text-red-600">
-                                <span>Shipping</span>
-                                <span>-{{ formatPrice(currentOrder.shipping_fee || 0) }}</span>
+                                <span>Phí vận chuyển</span>
+                                <span>-{{ formatPrice(currentOrder?.shipping_fee || 0) }}</span>
                             </div>
-                            <div v-if="currentOrder.discount_price > 0" class="flex justify-between text-red-600">
-                                <span>Discount</span>
-                                <span>-{{ formatPrice(currentOrder.discount_price) }}</span>
+                            <div v-if="currentOrder?.discount_price > 0" class="flex justify-between text-red-600">
+                                <span>Giảm giá</span>
+                                <span>-{{ formatPrice(currentOrder?.discount_price) }}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Taxes</span>
+                                <span class="text-gray-600">Thuế</span>
                                 <span>{{ formatPrice(10) }}</span>
                             </div>
                             <div class="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
-                                <span>Total</span>
-                                <span>{{ formatPrice(currentOrder.final_price) }}</span>
+                                <span>Tổng cộng</span>
+                                <span>{{ formatPrice(currentOrder?.final_price) }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- History Card -->
                     <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">History</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-start space-x-3">
-                                <div class="w-3 h-3 bg-green-500 rounded-full mt-2"></div>
-                                <div class="flex-1">
-                                    <p class="font-medium text-gray-900">Delivery successful</p>
-                                    <p class="text-sm text-gray-500">{{ formatDate(currentOrder.updated_at) }}</p>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Trạng thái đơn hàng</h3>
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col items-center relative">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
                                 </div>
+                                <span class="text-sm mt-2">Đặt hàng</span>
+                                <span class="text-xs text-gray-500">{{ formatDate(currentOrder?.created_at) }}</span>
                             </div>
-                            <div class="flex items-start space-x-3">
-                                <div class="w-3 h-3 bg-gray-300 rounded-full mt-2"></div>
-                                <div class="flex-1">
-                                    <p class="font-medium text-gray-900">Transporting to [2]</p>
-                                    <p class="text-sm text-gray-500">{{ formatDate(currentOrder.created_at) }}</p>
+                            <div class="flex-1 h-0.5 bg-gray-200 mx-4"></div>
+                            <div class="flex flex-col items-center relative">
+                                <div :class="[
+                                    'w-10 h-10 rounded-full flex items-center justify-center text-white',
+                                    currentOrder?.status === 'pending' ? 'bg-yellow-500' : 'bg-green-500'
+                                ]">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
                                 </div>
+                                <span class="text-sm mt-2">Xác nhận</span>
+                                <span class="text-xs text-gray-500">
+                                    {{ currentOrder?.status === 'pending' ? 'Đang chờ' :
+                                        formatDate(currentOrder?.updated_at)
+                                    }}</span>
                             </div>
-                            <div class="flex items-start space-x-3">
-                                <div class="w-3 h-3 bg-gray-300 rounded-full mt-2"></div>
-                                <div class="flex-1">
-                                    <p class="font-medium text-gray-900">Transporting to [1]</p>
-                                    <p class="text-sm text-gray-500">{{ formatDate(currentOrder.created_at) }}</p>
+                            <div class="flex-1 h-0.5 bg-gray-200 mx-4"></div>
+                            <div class="flex flex-col items-center relative">
+                                <div :class="[
+                                    'w-10 h-10 rounded-full flex items-center justify-center text-white',
+                                    ['shipping', 'completed'].includes(currentOrder?.status) ? 'bg-green-500' : 'bg-gray-300'
+                                ]">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                    </svg>
                                 </div>
+                                <span class="text-sm mt-2">Giao hàng</span>
+                                <span class="text-xs text-gray-500">{{ ['shipping',
+                                    'completed'].includes(currentOrder?.status) ? 'Đang giao' : 'Chờ xử lý' }}</span>
                             </div>
-                            <div class="flex items-start space-x-3">
-                                <div class="w-3 h-3 bg-gray-300 rounded-full mt-2"></div>
-                                <div class="flex-1">
-                                    <p class="font-medium text-gray-900">The shipping unit has picked up the goods</p>
-                                    <p class="text-sm text-gray-500">{{ formatDate(currentOrder.created_at) }}</p>
+                            <div class="flex-1 h-0.5 bg-gray-200 mx-4"></div>
+                            <div v-if="currentOrder?.status === 'completed'"
+                                class="flex flex-col items-center relative">
+                                <div :class="[
+                                    'w-10 h-10 rounded-full flex items-center justify-center text-white',
+                                    'bg-green-500'
+                                ]">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
                                 </div>
+                                <span class="text-sm mt-2">Hoàn thành</span>
+                                <span class="text-xs text-gray-500">
+                                    {{ formatDate(currentOrder?.updated_at) }}
+                                </span>
                             </div>
-                            <div class="flex items-start space-x-3">
-                                <div class="w-3 h-3 bg-gray-300 rounded-full mt-2"></div>
-                                <div class="flex-1">
-                                    <p class="font-medium text-gray-900">Order has been created</p>
-                                    <p class="text-sm text-gray-500">{{ formatDate(currentOrder.created_at) }}</p>
+                            <div v-else-if="currentOrder?.status === 'cancelled'"
+                                class="flex flex-col items-center relative">
+                                <div :class="[
+                                    'w-10 h-10 rounded-full flex items-center justify-center text-white',
+                                    'bg-red-500'
+                                ]">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
                                 </div>
+                                <span class="text-sm mt-2">Đã huỷ</span>
+                                <span class="text-xs text-gray-500">
+                                    {{ formatDate(currentOrder?.updated_at) }}
+                                </span>
                             </div>
                         </div>
 
                         <!-- Related Timestamps -->
                         <div class="mt-6 space-y-2">
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Order placed</span>
-                                <span class="text-gray-900">{{ formatDate(currentOrder.created_at) }}</span>
+                                <span class="text-gray-600">Thời gian đặt hàng</span>
+                                <span class="text-gray-900">{{ formatDate(currentOrder?.created_at) }}</span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Payment time</span>
-                                <span class="text-gray-900">{{ formatDate(currentOrder.created_at) }}</span>
+                                <span class="text-gray-600">Thời gian thanh toán</span>
+                                <span class="text-gray-900">{{ formatDate(currentOrder?.created_at) }}</span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Delivery time for the carrier</span>
-                                <span class="text-gray-900">{{ formatDate(currentOrder.updated_at) }}</span>
+                                <span class="text-gray-600">Thời gian giao cho đơn vị vận chuyển</span>
+                                <span class="text-gray-900">{{ formatDate(currentOrder?.updated_at) }}</span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Completion time</span>
-                                <span class="text-gray-900">{{ formatDate(currentOrder.updated_at) }}</span>
+                                <span class="text-gray-600">Thời gian hoàn thành</span>
+                                <span class="text-gray-900">{{ formatDate(currentOrder?.updated_at) }}</span>
                             </div>
                         </div>
 
                         <button class="text-blue-600 text-sm mt-4 hover:text-blue-800">
-                            Show more >
+                            Xem thêm >
                         </button>
                     </div>
                 </div>
@@ -175,46 +233,39 @@
                     <!-- Customer Info Card -->
                     <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900">Customer info</h3>
-                            <button class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-edit"></i>
-                            </button>
+                            <h3 class="text-lg font-semibold text-gray-900">Thông tin khách hàng</h3>
                         </div>
                         <div class="flex items-center space-x-4">
                             <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
                                 <i class="fas fa-user text-gray-600"></i>
                             </div>
                             <div class="flex-1">
-                                <h4 class="font-medium text-gray-900">{{ currentOrder.user?.username }}</h4>
-                                <p class="text-sm text-gray-500">{{ currentOrder.user?.email }}</p>
+                                <h4 class="font-medium text-gray-900">{{ currentOrder?.user?.username }}</h4>
+                                <p class="text-sm text-gray-500">{{ currentOrder?.user?.email }}</p>
                                 <p class="text-sm text-gray-500">IP: 192.158.1.38</p>
                             </div>
                         </div>
-                        <button class="text-red-600 text-sm mt-3 hover:text-red-800">
-                            + Add to blacklist
-                        </button>
                     </div>
 
                     <!-- Delivery Card -->
                     <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900">Delivery</h3>
-                            <button class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-edit"></i>
-                            </button>
+                            <h3 class="text-lg font-semibold text-gray-900">Vận chuyển</h3>
+
                         </div>
                         <div class="space-y-2">
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Ship by:</span>
+                                <span class="text-gray-600">Đơn vị vận chuyển:</span>
                                 <span class="font-medium">DHL</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Speedy:</span>
-                                <span class="font-medium">Standard</span>
+                                <span class="text-gray-600">Tốc độ:</span>
+                                <span class="font-medium">Tiêu chuẩn</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Tracking No.:</span>
-                                <a href="#" class="text-blue-600 underline font-medium">{{ currentOrder.tracking_code ||
+                                <span class="text-gray-600">Mã theo dõi:</span>
+                                <a href="#" class="text-blue-600 underline font-medium">{{ currentOrder?.tracking_code
+                                    ||
                                     'SPX037739199373' }}</a>
                             </div>
                         </div>
@@ -223,29 +274,25 @@
                     <!-- Shipping Card -->
                     <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900">Shipping</h3>
-                            <button class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-edit"></i>
-                            </button>
+                            <h3 class="text-lg font-semibold text-gray-900">Địa chỉ giao hàng</h3>
+
                         </div>
                         <div class="space-y-2">
-                            <p class="text-gray-900">{{ getFullAddress(currentOrder.address) }}</p>
-                            <p class="text-gray-600">{{ currentOrder.address?.phone }}</p>
+                            <p class="text-gray-900">{{ getFullAddress(currentOrder?.address) }}</p>
+                            <p class="text-gray-600">{{ currentOrder?.address?.phone }}</p>
                         </div>
                     </div>
 
                     <!-- Payment Card -->
                     <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-900">Payment</h3>
-                            <button class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-edit"></i>
-                            </button>
+                            <h3 class="text-lg font-semibold text-gray-900">Thanh toán</h3>
+
                         </div>
                         <div class="flex items-center space-x-3">
                             <div class="flex-1">
-                                <p class="font-medium text-gray-900">**** **** **** 5678</p>
-                                <p class="text-sm text-gray-500">{{ getPaymentMethod(currentOrder.payment_method) }}</p>
+                                <p class="font-medium text-gray-900">{{ getPaymentMethod(currentOrder?.payment_method)
+                                }}</p>
                             </div>
                             <div class="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
                                 <i class="fab fa-cc-mastercard text-blue-600"></i>
@@ -255,11 +302,29 @@
                 </div>
             </div>
         </div>
+
+        <!-- Cập nhật trạng thái và duyệt/từ chối hoàn hàng -->
+
+        <!-- Modal nhập lý do từ chối hoàn hàng -->
+        <div v-if="showRejectModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h3 class="text-lg font-bold mb-4">Lý do từ chối hoàn hàng</h3>
+                <textarea v-model="rejectReason" placeholder="Nhập lý do..."
+                    class="w-full h-24 p-2 border rounded mb-4" />
+                <div class="flex justify-end gap-2">
+                    <button @click="showRejectModal = false" class="bg-gray-200 px-4 py-2 rounded">Hủy</button>
+                    <button @click="handleRejectReturn"
+                        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Xác
+                        nhận</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useOrder } from '../../../composable/useOrder'
 
@@ -277,10 +342,43 @@ const {
     loading,
     error,
     getOrder,
+    updateOrderStatus,
     getOrderStatus,
+    getPaymentStatus,
     getPaymentMethod,
-    formatPrice
+    formatPrice,
+    approveReturn,
+    rejectReturn
 } = useOrder()
+
+const statusOptions = [
+    { value: 'pending', label: 'Chờ xử lý' },
+    { value: 'processing', label: 'Đang giao' },
+    { value: 'shipping', label: 'Đang giao hàng' },
+    { value: 'completed', label: 'Hoàn thành' },
+    { value: 'cancelled', label: 'Đã hủy' }
+]
+
+const paymentStatusOptions = [
+    { value: 'pending', label: 'Chờ thanh toán' },
+    { value: 'paid', label: 'Đã thanh toán' },
+    { value: 'failed', label: 'Thanh toán thất bại' },
+    { value: 'refunded', label: 'Đã hoàn tiền' },
+    { value: 'canceled', label: 'Đã huỷ' }
+]
+
+const selectedStatus = ref('pending')
+const selectedPaymentStatus = ref('pending')
+const showRejectModal = ref(false)
+const rejectReason = ref('')
+
+watch(() => currentOrder.value?.status, (val) => {
+    if (val) selectedStatus.value = val
+})
+
+watch(() => currentOrder.value?.payment_status, (val) => {
+    if (val) selectedPaymentStatus.value = val
+})
 
 const orderStatusText = computed(() => {
     if (!currentOrder.value?.status) return ''
@@ -318,6 +416,70 @@ const getOrderDetails = () => {
     return currentOrder.value?.orderDetails || currentOrder.value?.order_details || []
 }
 
+const handleUpdateStatus = async (data) => {
+    try {
+        await updateOrderStatus(props.orderId, data.status, data.payment_status)
+        await getOrder(props.orderId)
+    } catch (err) {
+        console.error('Failed to update order status:', err)
+    }
+}
+
+const openRejectModal = () => {
+    rejectReason.value = ''
+    showRejectModal.value = true
+}
+
+const handleRejectReturn = async () => {
+    if (!rejectReason.value.trim()) {
+        const { $notyf } = useNuxtApp()
+        if ($notyf) {
+            $notyf.error('Vui lòng nhập lý do từ chối!')
+        } else {
+            alert('Vui lòng nhập lý do từ chối!')
+        }
+        return
+    }
+    try {
+        await rejectReturn(currentOrder.value.id, rejectReason.value)
+        showRejectModal.value = false
+        await getOrder(currentOrder.value.id)
+        const { $notyf } = useNuxtApp()
+        if ($notyf) {
+            $notyf.success('Từ chối hoàn hàng thành công!')
+        } else {
+            alert('Từ chối hoàn hàng thành công!')
+        }
+    } catch (err) {
+        const { $notyf } = useNuxtApp()
+        if ($notyf) {
+            $notyf.error(err?.response?.data?.message || err.message || 'Từ chối hoàn hàng thất bại!')
+        } else {
+            alert(err?.response?.data?.message || err.message || 'Từ chối hoàn hàng thất bại!')
+        }
+    }
+}
+
+const handleApproveReturn = async () => {
+    try {
+        await approveReturn(currentOrder.value.id)
+        await getOrder(currentOrder.value.id)
+        const { $notyf } = useNuxtApp()
+        if ($notyf) {
+            $notyf.success('Duyệt hoàn hàng thành công!')
+        } else {
+            alert('Duyệt hoàn hàng thành công!')
+        }
+    } catch (err) {
+        const { $notyf } = useNuxtApp()
+        if ($notyf) {
+            $notyf.error(err?.response?.data?.message || err.message || 'Duyệt hoàn hàng thất bại!')
+        } else {
+            alert(err?.response?.data?.message || err.message || 'Duyệt hoàn hàng thất bại!')
+        }
+    }
+}
+
 onMounted(async () => {
     await getOrder(props.orderId)
 })
@@ -335,5 +497,18 @@ onMounted(async () => {
 
 .main-content {
     padding-top: 1.5rem;
+}
+
+.order-status {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.order-status h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
 }
 </style>

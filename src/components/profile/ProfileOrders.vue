@@ -943,6 +943,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import { push } from 'notivue'
 import { useOrder } from '../../composable/useOrder'
 import { useHead } from '@vueuse/head'
 useHead({
@@ -1169,13 +1170,13 @@ const canCancelOrder = (order) => {
 }
 
 const confirmCancelOrder = async () => {
-    const notyf = useNuxtApp().$notyf
+    const push = useNuxtApp().$push
     const reasonLabel = cancelReason.value === 'other'
         ? cancelReasonOther.value.trim()
         : cancelReasons.find(r => r.value === cancelReason.value)?.label || ''
 
     if (!reasonLabel) {
-        notyf.error('Vui lòng chọn hoặc nhập lý do hủy đơn hàng')
+        push.error('Vui lòng chọn hoặc nhập lý do hủy đơn hàng')
         return
     }
 
@@ -1184,11 +1185,11 @@ const confirmCancelOrder = async () => {
         showCancelReasonModal.value = false
         closeModal()
         fetchOrders()
-        notyf.success('Hủy đơn hàng thành công!')
+        push.success('Hủy đơn hàng thành công!')
         cancelReason.value = ''
         cancelReasonOther.value = ''
     } catch (err) {
-        notyf.error(err?.response?.data?.message || err.message || 'Hủy đơn hàng thất bại')
+        push.error(err?.response?.data?.message || err.message || 'Hủy đơn hàng thất bại')
     }
 }
 
@@ -1222,29 +1223,28 @@ const canRequestReturn = (order) => {
 }
 
 const handleRequestReturn = async (orderId) => {
-    const notyf = useNuxtApp().$notyf
     const order = orders.value.find(order => order.id === orderId)
     if (!order) {
-        notyf.error('Không tìm thấy đơn hàng!');
+        push.error('Không tìm thấy đơn hàng!');
         return;
     }
     if (!['cancelled', 'completed'].includes(order.status)) {
-        notyf.error('Chỉ có thể hoàn hàng cho đơn đã hủy hoặc đã hoàn thành');
+        push.error('Chỉ có thể hoàn hàng cho đơn đã hủy hoặc đã hoàn thành');
         return;
     }
     if (order.return_requested_at) {
-        notyf.error('Bạn đã gửi yêu cầu hoàn hàng cho đơn này rồi');
+        push.error('Bạn đã gửi yêu cầu hoàn hàng cho đơn này rồi');
         return;
     }
     if (order.payment_method === 'cod') {
-        notyf.error('Đơn thanh toán COD không hỗ trợ hoàn hàng');
+        push.error('Đơn thanh toán COD không hỗ trợ hoàn hàng');
         return;
     }
     const completedOrCancelledAt = new Date(order.updated_at);
     const now = new Date();
     const diffDays = (now - completedOrCancelledAt) / (1000 * 60 * 60 * 24);
     if (diffDays > 3) {
-        notyf.error('Chỉ có thể hoàn hàng trong vòng 3 ngày kể từ khi đơn hoàn thành hoặc bị hủy');
+        push.error('Chỉ có thể hoàn hàng trong vòng 3 ngày kể từ khi đơn hoàn thành hoặc bị hủy');
         return;
     }
 
@@ -1255,10 +1255,10 @@ const handleRequestReturn = async (orderId) => {
             orders.value[orderIndex].return_status = 'requested'
             orders.value[orderIndex].return_requested_at = new Date().toISOString()
         }
-        notyf.success('Yêu cầu hoàn hàng đã được gửi!')
+        push.success('Yêu cầu hoàn hàng đã được gửi!')
         fetchOrders()
     } catch (err) {
-        notyf.error(err?.response?.data?.message || err.message || 'Gửi yêu cầu hoàn hàng thất bại')
+        push.error(err?.response?.data?.message || err.message || 'Gửi yêu cầu hoàn hàng thất bại')
     }
 }
 

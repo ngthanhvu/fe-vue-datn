@@ -1,6 +1,6 @@
 <template>
     <ProductsDetail v-if="product" :product="product" :product-images="product.images || []" :main-image="mainImage"
-        :selected-size="selectedSize" :selected-color="selectedColor" :quantity="quantity"
+        :selected-size="selectedSize" :selected-color="selectedColor" v-model:quantity="quantity"
         :selected-variant-stock="selectedVariantStock" :display-price="displayPrice"
         :show-original-price="showOriginalPrice" :flash-sale-name="flashSaleName" :flash-sale-price="flashSalePrice"
         :flash-sale-end-time="flashSaleEndTime" :flash-sale-sold="flashSaleSold"
@@ -11,8 +11,7 @@
         :reviews="reviews" :review-pagination-data="reviewPaginationData" :total-review-pages="totalReviewPages"
         :total-reviews="totalReviews" :reviews-per-page="reviewsPerPage" :current-review-page="currentReviewPage"
         :user="user" :product-inventory="productInventory" @update:selectedSize="val => selectedSize = val"
-        @update:selectedColor="val => selectedColor = val" @update:quantity="val => quantity = val"
-        @update:mainImage="val => mainImage = val" v-model:activeTab="activeTab" @submitReview="submitReview"
+        @update:selectedColor="val => selectedColor = val" v-model:activeTab="activeTab" @submitReview="submitReview"
         @update:showReviewForm="val => showReviewForm = val" @update:reviewForm="val => reviewForm = val"
         @removeImage="removeImage" @handleImageUpload="handleImageUpload" @add-to-cart="handleAddToCart"
         @cancelEdit="cancelEdit" @editReview="editReview" @removeReview="removeReview"
